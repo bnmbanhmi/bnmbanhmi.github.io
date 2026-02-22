@@ -1,27 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bnmbanhmi</title>
     <style>
-        /* Color palette inspired by the movie "Her":
-           - Warm cream background: #FDF6F0 
-           - Accent color (Theodore's shirt): #FF7A5C (Pastel coral orange)
-           - Primary text color (warm grey-brown): #7A6863
-           - Secondary text color (lighter): #BFAAA5
-        */
         :root {
             --bg-color: #FDF6F0;
             --accent-color: #FF7A5C;
+            --card-top: #FF9A85;
+            --card-bottom-strip: #FF9A85;
+            --card-body: #FFF1E6;
             --text-color: #7A6863;
             --muted-color: #BFAAA5;
         }
 
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            /* Clean sans-serif font */
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -31,33 +27,80 @@
             align-items: center;
             justify-content: center;
             min-height: 90vh;
-            /* Keep content centered */
+        }
+
+        .hello-card {
+            width: 300px;
+            background-color: var(--card-body);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(122, 104, 99, 0.1);
+            margin-bottom: 40px;
+            cursor: pointer;
+        }
+
+        .card-top {
+            background-color: var(--card-top);
+            color: #fff;
             text-align: center;
+            padding: 14px 0 10px 0;
         }
 
-        /* Main title - Focal point */
-        h1 {
-            font-weight: 400;
-            /* Thin, gentle */
-            letter-spacing: 3px;
-            /* Increased letter spacing for an airy feel */
-            color: var(--accent-color);
-            margin: 0 0 30px 0;
-            font-size: 2rem;
+        .card-top .hello-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+            line-height: 1.2;
         }
 
-        /* Main Substack link - Replaces clunky buttons */
+        .card-top .subtitle-text {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 18px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+            background-color: var(--card-body);
+        }
+
+        .card-bottom-strip {
+            background-color: var(--card-bottom-strip);
+            height: 22px;
+        }
+
+        .handwriting-svg {
+            width: 200px;
+            height: auto;
+        }
+
+        .name-path {
+            fill: none;
+            stroke: var(--accent-color);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .main-link {
             display: inline-block;
             color: var(--text-color);
             text-decoration: none;
-            font-size: 1.1rem;
+            font-size: 1rem;
             border-bottom: 1px solid var(--accent-color);
-            /* Subtle underline */
             padding-bottom: 2px;
             transition: all 0.3s ease;
-            margin-bottom: 60px;
-            /* Large spacing from the feed section */
+            margin-bottom: 50px;
         }
 
         .main-link:hover {
@@ -65,23 +108,20 @@
             border-bottom-width: 2px;
         }
 
-        /* Feed Section - Maximally minimalist */
         .feed-section {
             width: 100%;
             max-width: 400px;
-            /* Limit width for readability */
             text-align: left;
         }
 
         .post-item {
-            margin-bottom: 25px;
-            /* No borders, no background */
+            margin-bottom: 20px;
         }
 
         .post-item h3 {
-            margin: 0 0 5px 0;
+            margin: 0 0 4px 0;
             font-weight: 400;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .post-item h3 a {
@@ -95,16 +135,15 @@
         }
 
         .date {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--muted-color);
             display: block;
-            /* Remove post descriptions for minimalism */
         }
 
         .loading {
             color: var(--muted-color);
             font-style: italic;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-align: center;
         }
     </style>
@@ -112,18 +151,104 @@
 
 <body>
 
-    <h1>bnmbanhmi</h1>
+    <div class="hello-card" id="helloCard">
+        <div class="card-top">
+            <span class="hello-text">Hello</span>
+            <span class="subtitle-text">my name is</span>
+        </div>
+        <div class="card-body">
+            <svg class="handwriting-svg" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
+                <!-- b: vertical stroke down then loop for the belly -->
+                <path class="name-path" id="letter-b"
+                    d="M12,12 L12,58 M12,35 C12,28 22,22 26,30 C30,38 28,48 22,52 C16,56 12,52 12,48" />
+                <!-- a: small circle with a tail -->
+                <path class="name-path" id="letter-a"
+                    d="M48,32 C44,28 36,28 34,35 C32,42 34,52 40,54 C46,56 50,50 48,42 L48,32 L48,56" />
+                <!-- n: stroke down then hump -->
+                <path class="name-path" id="letter-n" d="M58,32 L58,56 M58,38 C58,30 66,28 70,34 C74,40 72,56 72,56" />
+                <!-- h: tall vertical then hump -->
+                <path class="name-path" id="letter-h" d="M82,12 L82,56 M82,38 C82,30 90,28 94,34 C98,40 96,56 96,56" />
+                <!-- m: stroke down then two humps -->
+                <path class="name-path" id="letter-m"
+                    d="M106,32 L106,56 M106,38 C106,30 114,28 116,34 C118,40 118,42 118,42 C118,34 120,28 126,28 C132,28 134,36 134,42 L134,56" />
+                <!-- i: short stroke with a dot -->
+                <path class="name-path" id="letter-i" d="M144,32 L144,56 M144,22 L144.5,22.5" />
+            </svg>
+        </div>
+        <div class="card-bottom-strip"></div>
+    </div>
 
-    <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">read essays</a>
+    <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">đọc tản văn</a>
 
     <div class="feed-section">
         <div id="substack-feed" class="loading">...</div>
     </div>
 
     <script>
-        // NOTE: Your RSS link
-        const rssUrl = 'https://bnmbanhmi.substack.com/feed?t=' + new Date().getTime();
-        // Use another proxy service (rssapi.org) for better stability with simple text output
+        // ── Handwriting animation ──
+        (function () {
+            const letters = [
+                'letter-b', 'letter-a', 'letter-n',
+                'letter-h', 'letter-m', 'letter-i'
+            ];
+
+            // Duration each letter takes to draw (ms)
+            const drawDuration = 500;
+            // Small pause between letters (ms)
+            const letterGap = 80;
+
+            function getPathLength(el) {
+                return el.getTotalLength();
+            }
+
+            function initPaths() {
+                letters.forEach(id => {
+                    const path = document.getElementById(id);
+                    const len = getPathLength(path);
+                    path.style.strokeDasharray = len;
+                    path.style.strokeDashoffset = len;
+                    path.style.transition = 'none';
+                });
+            }
+
+            function animateWrite() {
+                // Reset all paths instantly
+                letters.forEach(id => {
+                    const path = document.getElementById(id);
+                    const len = getPathLength(path);
+                    path.style.transition = 'none';
+                    path.style.strokeDashoffset = len;
+                });
+
+                // Force reflow
+                void document.querySelector('.handwriting-svg').getBoundingClientRect();
+
+                // Sequentially animate each letter
+                letters.forEach((id, i) => {
+                    const path = document.getElementById(id);
+                    const delay = i * (drawDuration + letterGap);
+
+                    setTimeout(() => {
+                        path.style.transition = `stroke-dashoffset ${drawDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+                        path.style.strokeDashoffset = '0';
+                    }, delay);
+                });
+            }
+
+            // Initial setup & first animation
+            window.addEventListener('DOMContentLoaded', () => {
+                initPaths();
+                // Small delay so the page settles
+                setTimeout(animateWrite, 300);
+            });
+
+            // Re-play animation on hover
+            const card = document.getElementById('helloCard');
+            card.addEventListener('mouseenter', animateWrite);
+        })();
+
+        // ── Substack feed ──
+        const rssUrl = 'https://bnmbanhmi.substack.com/feed';
         const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
         fetch(apiUrl)
@@ -133,19 +258,16 @@
                 container.innerHTML = '';
 
                 if (!data.items || data.items.length === 0) {
-                    container.innerHTML = '<p class="loading">nothing here yet.</p>';
+                    container.innerHTML = '<p class="loading">chưa có gì.</p>';
                     return;
                 }
 
-                // Take 3 posts
                 const posts = data.items.slice(0, 3);
 
                 posts.forEach(post => {
-                    // Date processing (only day/month for brevity)
                     let dateObj = new Date(post.pubDate.replace(/-/g, '/'));
-                    let pubDate = dateObj.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' });
+                    let pubDate = dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
 
-                    // Minimalist HTML output: Title + Date only. No description.
                     container.innerHTML += `
                         <div class="post-item">
                             <h3><a href="${post.link}" target="_blank">${post.title.toLowerCase()}</a></h3>
@@ -155,7 +277,6 @@
                 });
             })
             .catch(error => {
-                // Hide on error, no verbose notifications
                 document.getElementById('substack-feed').innerHTML = '';
             });
     </script>
