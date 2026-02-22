@@ -122,7 +122,7 @@
 
     <script>
         // NOTE: Your RSS link
-        const rssUrl = 'https://bnmbanhmi.substack.com/feed';
+        const rssUrl = 'https://bnmbanhmi.substack.com/feed?t=' + new Date().getTime();
         // Use another proxy service (rssapi.org) for better stability with simple text output
         const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
