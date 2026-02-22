@@ -158,21 +158,29 @@
         </div>
         <div class="card-body">
             <svg class="handwriting-svg" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
-                <!-- b: vertical stroke down then loop for the belly -->
-                <path class="name-path" id="letter-b"
-                    d="M12,12 L12,58 M12,35 C12,28 22,22 26,30 C30,38 28,48 22,52 C16,56 12,52 12,48" />
-                <!-- a: small circle with a tail -->
-                <path class="name-path" id="letter-a"
-                    d="M48,32 C44,28 36,28 34,35 C32,42 34,52 40,54 C46,56 50,50 48,42 L48,32 L48,56" />
-                <!-- n: stroke down then hump -->
-                <path class="name-path" id="letter-n" d="M58,32 L58,56 M58,38 C58,30 66,28 70,34 C74,40 72,56 72,56" />
-                <!-- h: tall vertical then hump -->
-                <path class="name-path" id="letter-h" d="M82,12 L82,56 M82,38 C82,30 90,28 94,34 C98,40 96,56 96,56" />
-                <!-- m: stroke down then two humps -->
-                <path class="name-path" id="letter-m"
-                    d="M106,32 L106,56 M106,38 C106,30 114,28 116,34 C118,40 118,42 118,42 C118,34 120,28 126,28 C132,28 134,36 134,42 L134,56" />
-                <!-- i: short stroke with a dot -->
-                <path class="name-path" id="letter-i" d="M144,32 L144,56 M144,22 L144.5,22.5" />
+                <g transform="translate(31, 0)">
+                    <!-- b: stroke 1 = vertical, stroke 2 = belly -->
+                    <path class="name-path" id="b-1" d="M12,12 L12,58" />
+                    <path class="name-path" id="b-2"
+                        d="M12,35 C12,28 22,22 26,30 C30,38 28,48 22,52 C16,56 12,52 12,48" />
+                    <!-- a: stroke 1 = circle, stroke 2 = tail -->
+                    <path class="name-path" id="a-1"
+                        d="M48,32 C44,28 36,28 34,35 C32,42 34,52 40,54 C46,56 50,50 48,42 L48,32" />
+                    <path class="name-path" id="a-2" d="M48,32 L48,56" />
+                    <!-- n: stroke 1 = vertical, stroke 2 = hump -->
+                    <path class="name-path" id="n-1" d="M58,32 L58,56" />
+                    <path class="name-path" id="n-2" d="M58,38 C58,30 66,28 70,34 C74,40 72,56 72,56" />
+                    <!-- h: stroke 1 = tall vertical, stroke 2 = hump -->
+                    <path class="name-path" id="h-1" d="M82,12 L82,56" />
+                    <path class="name-path" id="h-2" d="M82,38 C82,30 90,28 94,34 C98,40 96,56 96,56" />
+                    <!-- m: stroke 1 = vertical, stroke 2 = first hump, stroke 3 = second hump -->
+                    <path class="name-path" id="m-1" d="M106,32 L106,56" />
+                    <path class="name-path" id="m-2" d="M106,38 C106,30 114,28 116,34 C118,40 118,42 118,42" />
+                    <path class="name-path" id="m-3" d="M118,42 C118,34 120,28 126,28 C132,28 134,36 134,42 L134,56" />
+                    <!-- i: stroke 1 = body, stroke 2 = dot -->
+                    <path class="name-path" id="i-1" d="M144,32 L144,56" />
+                    <path class="name-path" id="i-2" d="M144,22 L144.5,22.5" />
+                </g>
             </svg>
         </div>
         <div class="card-bottom-strip"></div>
@@ -187,24 +195,25 @@
     <script>
         // ── Handwriting animation ──
         (function () {
-            const letters = [
-                'letter-b', 'letter-a', 'letter-n',
-                'letter-h', 'letter-m', 'letter-i'
+            // Each stroke as a separate path, in drawing order
+            const strokes = [
+                'b-1', 'b-2',       // b: vertical, then belly
+                'a-1', 'a-2',       // a: circle, then tail
+                'n-1', 'n-2',       // n: vertical, then hump
+                'h-1', 'h-2',       // h: vertical, then hump
+                'm-1', 'm-2', 'm-3', // m: vertical, first hump, second hump
+                'i-1', 'i-2'        // i: body, then dot
             ];
 
-            // Duration each letter takes to draw (ms)
-            const drawDuration = 500;
-            // Small pause between letters (ms)
-            const letterGap = 80;
-
-            function getPathLength(el) {
-                return el.getTotalLength();
-            }
+            // Duration each stroke takes to draw (ms)
+            const drawDuration = 1000;
+            // Small pause between strokes (ms)
+            const strokeGap = 40;
 
             function initPaths() {
-                letters.forEach(id => {
+                strokes.forEach(id => {
                     const path = document.getElementById(id);
-                    const len = getPathLength(path);
+                    const len = path.getTotalLength();
                     path.style.strokeDasharray = len;
                     path.style.strokeDashoffset = len;
                     path.style.transition = 'none';
@@ -212,10 +221,10 @@
             }
 
             function animateWrite() {
-                // Reset all paths instantly
-                letters.forEach(id => {
+                // Reset all strokes instantly
+                strokes.forEach(id => {
                     const path = document.getElementById(id);
-                    const len = getPathLength(path);
+                    const len = path.getTotalLength();
                     path.style.transition = 'none';
                     path.style.strokeDashoffset = len;
                 });
@@ -223,15 +232,20 @@
                 // Force reflow
                 void document.querySelector('.handwriting-svg').getBoundingClientRect();
 
-                // Sequentially animate each letter
-                letters.forEach((id, i) => {
+                // Sequentially animate each stroke
+                let cumDelay = 0;
+                strokes.forEach((id, i) => {
                     const path = document.getElementById(id);
-                    const delay = i * (drawDuration + letterGap);
+                    const len = path.getTotalLength();
+                    // Scale duration proportionally to path length so short strokes don't drag
+                    const dur = Math.max(150, drawDuration * (len / 80));
 
                     setTimeout(() => {
-                        path.style.transition = `stroke-dashoffset ${drawDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+                        path.style.transition = `stroke-dashoffset ${dur}ms cubic-bezier(0.4, 0, 0.2, 1)`;
                         path.style.strokeDashoffset = '0';
-                    }, delay);
+                    }, cumDelay);
+
+                    cumDelay += dur + strokeGap;
                 });
             }
 
