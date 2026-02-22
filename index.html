@@ -186,7 +186,7 @@
         <div class="card-bottom-strip"></div>
     </div>
 
-    <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">đọc tản văn</a>
+    <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">read my essays</a>
 
     <div class="feed-section">
         <div id="substack-feed" class="loading">...</div>
@@ -220,7 +220,14 @@
                 });
             }
 
+            // Track pending timers so we can cancel them on re-trigger
+            let pendingTimers = [];
+
             function animateWrite() {
+                // Cancel any in-progress animation
+                pendingTimers.forEach(t => clearTimeout(t));
+                pendingTimers = [];
+
                 // Reset all strokes instantly
                 strokes.forEach(id => {
                     const path = document.getElementById(id);
@@ -240,11 +247,12 @@
                     // Scale duration proportionally to path length so short strokes don't drag
                     const dur = Math.max(150, drawDuration * (len / 80));
 
-                    setTimeout(() => {
+                    const timer = setTimeout(() => {
                         path.style.transition = `stroke-dashoffset ${dur}ms cubic-bezier(0.4, 0, 0.2, 1)`;
                         path.style.strokeDashoffset = '0';
                     }, cumDelay);
 
+                    pendingTimers.push(timer);
                     cumDelay += dur + strokeGap;
                 });
             }
@@ -256,9 +264,14 @@
                 setTimeout(animateWrite, 300);
             });
 
-            // Re-play animation on hover
+            // Re-play animation on hover (desktop) and touch/click (mobile)
             const card = document.getElementById('helloCard');
             card.addEventListener('mouseenter', animateWrite);
+            card.addEventListener('click', animateWrite);
+            card.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                animateWrite();
+            }, { passive: false });
         })();
 
         // ── Substack feed ──
@@ -272,7 +285,7 @@
                 container.innerHTML = '';
 
                 if (!data.items || data.items.length === 0) {
-                    container.innerHTML = '<p class="loading">chưa có gì.</p>';
+                    container.innerHTML = '<p class="loading">nothing yet.</p>';
                     return;
                 }
 
