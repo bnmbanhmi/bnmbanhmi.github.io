@@ -146,6 +146,142 @@
             font-size: 0.85rem;
             text-align: center;
         }
+
+        .vinyl-active-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .player-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .vinyl-spin-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+
+        .vinyl-card-spinning {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(122, 104, 99, 0.3), inset 0 0 0 6px #111;
+            animation: spinRecord 15s linear infinite;
+            animation-play-state: paused;
+            position: relative;
+            background-color: #222;
+        }
+
+        /* Background ambient colored track wrapper safely preserves styles after iframe injection */
+        #active-embed-bg-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(2.5);
+            filter: blur(25px) saturate(1.5) brightness(0.8);
+            opacity: 0.9;
+            pointer-events: none;
+            width: 300px;
+            height: 352px;
+        }
+
+        /* Scaled down foreground wrapper ensures the track and its buttons fully fit inside the vinyl circle */
+        #active-embed-fg-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.65);
+            z-index: 5;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+            border-radius: 20px;
+            /* Maps properly over Spotify's natural corners during scaling */
+            overflow: hidden;
+            width: 300px;
+            height: 352px;
+            pointer-events: auto;
+        }
+
+        /* Spotify API converts the inner div directly to an iframe; these selectors target them directly */
+        #active-embed-bg-wrapper iframe,
+        #active-embed-fg-wrapper iframe {
+            width: 300px !important;
+            height: 352px !important;
+            border-radius: 0 !important;
+            border: none;
+        }
+
+        #active-embed-bg-wrapper iframe {
+            pointer-events: none;
+        }
+
+        @keyframes spinRecord {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .idle-tracks-scroll {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 5px 20px 5px;
+            scrollbar-width: none;
+            margin-bottom: 40px;
+        }
+
+        .idle-tracks-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .idle-track {
+            position: relative;
+            flex: 0 0 auto;
+            width: 280px;
+            height: 352px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(122, 104, 99, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+            background-color: var(--card-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .idle-track:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(122, 104, 99, 0.25);
+        }
+
+        .idle-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10;
+            background: transparent;
+        }
     </style>
 </head>
 
@@ -191,6 +327,26 @@
     <div class="feed-section">
         <div id="substack-feed" class="loading">...</div>
     </div>
+
+    <!-- Top Active Player -->
+    <div class="vinyl-active-wrapper" id="active-player-wrapper">
+        <span class="player-title">now playing</span>
+        <div class="vinyl-spin-container">
+            <div class="vinyl-card-spinning" id="vinyl-animator">
+                <!-- Background ambient layer to bleed album art to the vinyl edge -->
+                <div id="active-embed-bg-wrapper">
+                    <div id="active-embed-bg"></div>
+                </div>
+                <!-- Foreground fully visible song card safely embedded -->
+                <div id="active-embed-fg-wrapper">
+                    <div id="active-embed-fg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Idle Scrollable List -->
+    <div class="idle-tracks-scroll" id="idle-tracks"></div>
 
     <script>
         // ── Handwriting animation ──
@@ -306,6 +462,121 @@
             .catch(error => {
                 document.getElementById('substack-feed').innerHTML = '';
             });
+
+        // ── Spotify Vinyl Player (Swap Mechanism) ──
+        // You can put either direct IDs or full Spotify URLs here!
+        const trackInputs = [
+            'https://open.spotify.com/track/4clakrnFWRZ1FiiX3LJxg6?si=fbb79b2f146e47fb', // 
+            'https://open.spotify.com/track/317Lh6QCAz9JpWbV3oxrCf?si=8a7fae6e67d54162', // 
+            'https://open.spotify.com/track/317Lh6QCAz9JpWbV3oxrCf?si=dda9f23a82544816',  //
+            'https://open.spotify.com/track/15I2gq8Nill5zwxabTFD6f?si=a8ebd43a2b7c4ce1'
+        ];
+
+        function parseSpotifyUri(input) {
+            // Extracts the ID after 'track/' if it's a full URL, or just uses it directly
+            const match = input.match(/track\/([a-zA-Z0-9]+)/);
+            const id = match ? match[1] : input;
+            return 'spotify:track:' + id;
+        }
+
+        const validUris = trackInputs.map(parseSpotifyUri);
+        let activeUri = validUris[0];
+        let idleUris = validUris.slice(1);
+
+        let activeController = null;
+        let idleControllers = []; // array of { div, controller, uri }
+
+        const spotifyScript = document.createElement('script');
+        spotifyScript.src = "https://open.spotify.com/embed/iframe-api/v1";
+        spotifyScript.async = true;
+        document.body.appendChild(spotifyScript);
+
+        window.onSpotifyIframeApiReady = (IFrameAPI) => {
+            const activeEmbedBgDiv = document.getElementById('active-embed-bg');
+            const activeEmbedFgDiv = document.getElementById('active-embed-fg');
+            const vinylAnimator = document.getElementById('vinyl-animator');
+            const idleContainer = document.getElementById('idle-tracks');
+
+            let bgController = null;
+
+            // 1. Initialize Active Track Options
+            const activeOptions = {
+                uri: activeUri,
+                width: '300',
+                height: '352',
+                theme: '0'
+            };
+
+            // Background Ambient Layer
+            IFrameAPI.createController(activeEmbedBgDiv, activeOptions, (controller) => {
+                bgController = controller;
+            });
+
+            // Foreground Interactive Layer
+            IFrameAPI.createController(activeEmbedFgDiv, activeOptions, (controller) => {
+                activeController = controller;
+
+                controller.addListener('playback_update', e => {
+                    // Play/Pause spinner based on track state
+                    if (!e.data.isPaused && !e.data.isBuffering) {
+                        vinylAnimator.style.animationPlayState = 'running';
+                    } else {
+                        vinylAnimator.style.animationPlayState = 'paused';
+                    }
+                });
+            });
+
+            // 2. Initialize Idle Tracks horizontally (Clean tall square cards)
+            idleUris.forEach((uri) => {
+                const idleDiv = document.createElement('div');
+                idleDiv.className = 'idle-track';
+
+                const iframeDiv = document.createElement('div');
+                iframeDiv.style.width = '100%';
+                iframeDiv.style.height = '100%';
+                idleDiv.appendChild(iframeDiv);
+
+                // Overlay to intercept clicks without hitting Spotify Player
+                const overlay = document.createElement('div');
+                overlay.className = 'idle-overlay';
+                idleDiv.appendChild(overlay);
+
+                idleContainer.appendChild(idleDiv);
+
+                const idleOptions = {
+                    uri: uri,
+                    width: '280',
+                    height: '352',
+                    theme: '0'
+                };
+
+                IFrameAPI.createController(iframeDiv, idleOptions, (controller) => {
+                    const idleObj = {
+                        div: idleDiv,
+                        controller: controller,
+                        uri: uri
+                    };
+                    idleControllers.push(idleObj);
+
+                    idleDiv.addEventListener('click', () => {
+                        const oldActiveUri = activeUri;
+                        const newActiveUri = idleObj.uri;
+
+                        // State sync
+                        activeUri = newActiveUri;
+                        idleObj.uri = oldActiveUri;
+
+                        // Swap tracks between views
+                        activeController.loadUri(newActiveUri);
+                        if (bgController) bgController.loadUri(newActiveUri);
+                        idleObj.controller.loadUri(oldActiveUri);
+
+                        // Reset spinner dynamically
+                        vinylAnimator.style.animationPlayState = 'paused';
+                    });
+                });
+            });
+        };
     </script>
 </body>
 
