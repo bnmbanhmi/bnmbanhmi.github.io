@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bnmbanhmi</title>
+    <link rel="canonical" href="https://bnmbanhmi.me" />
     <style>
         :root {
             --bg-color: #FDF6F0;
@@ -158,10 +159,8 @@
         }
 
         .player-title {
-            font-size: 0.75rem;
+            font-size: 1rem;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
             color: var(--accent-color);
             margin-bottom: 20px;
             opacity: 0.9;
@@ -174,64 +173,208 @@
             opacity: 0;
             transform: translateY(-40px);
         }
-        
+
         #spotify-player-container.loaded {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        body.blog-view {
+            justify-content: flex-start;
+        }
+
+        #home-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #home-content.hidden {
+            display: none;
+        }
+
+        #blog-content {
+            display: none;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        #blog-content.visible {
+            display: block;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-color);
+        }
+
+        #post-body {
+            line-height: 1.8;
+            font-size: 0.95rem;
+            color: var(--text-color);
+        }
+
+        #post-body h1,
+        #post-body h2,
+        #post-body h3 {
+            font-weight: 600;
+            color: #5C4A45;
+            margin-top: 2em;
+        }
+
+        #post-body h1 {
+            font-size: 1.5rem;
+        }
+
+        #post-body h2 {
+            font-size: 1.25rem;
+        }
+
+        #post-body h3 {
+            font-size: 1.1rem;
+        }
+
+        #post-body p {
+            margin: 1.2em 0;
+        }
+
+        #post-body a {
+            color: var(--accent-color);
+        }
+
+        #post-body img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+
+        #post-body blockquote {
+            border-left: 3px solid var(--accent-color);
+            margin: 1.5em 0;
+            padding: 0.5em 1em;
+            background: var(--card-body);
+            border-radius: 0 8px 8px 0;
+        }
+
+        #post-body code {
+            background: var(--card-body);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        #post-body pre code {
+            display: block;
+            padding: 1em;
+            overflow-x: auto;
+        }
+
+        #post-body ul,
+        #post-body ol {
+            padding-left: 1.5em;
+        }
+
+        #post-body li {
+            margin: 0.5em 0;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="hello-card" id="helloCard">
-        <div class="card-top">
-            <span class="hello-text">Hello</span>
-            <span class="subtitle-text">my name is</span>
+    <div id="home-content">
+
+        <div class="hello-card" id="helloCard">
+            <div class="card-top">
+                <span class="hello-text">Hello</span>
+                <span class="subtitle-text">my name is</span>
+            </div>
+            <div class="card-body">
+                <svg class="handwriting-svg" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(31, 0)">
+                        <!-- b: stroke 1 = vertical, stroke 2 = belly -->
+                        <path class="name-path" id="b-1" d="M12,12 L12,58" />
+                        <path class="name-path" id="b-2"
+                            d="M12,35 C12,28 22,22 26,30 C30,38 28,48 22,52 C16,56 12,52 12,48" />
+                        <!-- a: stroke 1 = circle, stroke 2 = tail -->
+                        <path class="name-path" id="a-1"
+                            d="M48,32 C44,28 36,28 34,35 C32,42 34,52 40,54 C46,56 50,50 48,42 L48,32" />
+                        <path class="name-path" id="a-2" d="M48,32 L48,56" />
+                        <!-- n: stroke 1 = vertical, stroke 2 = hump -->
+                        <path class="name-path" id="n-1" d="M58,32 L58,56" />
+                        <path class="name-path" id="n-2" d="M58,38 C58,30 66,28 70,34 C74,40 72,56 72,56" />
+                        <!-- h: stroke 1 = tall vertical, stroke 2 = hump -->
+                        <path class="name-path" id="h-1" d="M82,12 L82,56" />
+                        <path class="name-path" id="h-2" d="M82,38 C82,30 90,28 94,34 C98,40 96,56 96,56" />
+                        <!-- m: stroke 1 = vertical, stroke 2 = first hump, stroke 3 = second hump -->
+                        <path class="name-path" id="m-1" d="M106,32 L106,56" />
+                        <path class="name-path" id="m-2" d="M106,38 C106,30 114,28 116,34 C118,40 118,42 118,42" />
+                        <path class="name-path" id="m-3"
+                            d="M118,42 C118,34 120,28 126,28 C132,28 134,36 134,42 L134,56" />
+                        <!-- i: stroke 1 = body, stroke 2 = dot -->
+                        <path class="name-path" id="i-1" d="M144,32 L144,56" />
+                        <path class="name-path" id="i-2" d="M144,22 L144.5,22.5" />
+                    </g>
+                </svg>
+            </div>
+            <div class="card-bottom-strip"></div>
         </div>
-        <div class="card-body">
-            <svg class="handwriting-svg" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
-                <g transform="translate(31, 0)">
-                    <!-- b: stroke 1 = vertical, stroke 2 = belly -->
-                    <path class="name-path" id="b-1" d="M12,12 L12,58" />
-                    <path class="name-path" id="b-2"
-                        d="M12,35 C12,28 22,22 26,30 C30,38 28,48 22,52 C16,56 12,52 12,48" />
-                    <!-- a: stroke 1 = circle, stroke 2 = tail -->
-                    <path class="name-path" id="a-1"
-                        d="M48,32 C44,28 36,28 34,35 C32,42 34,52 40,54 C46,56 50,50 48,42 L48,32" />
-                    <path class="name-path" id="a-2" d="M48,32 L48,56" />
-                    <!-- n: stroke 1 = vertical, stroke 2 = hump -->
-                    <path class="name-path" id="n-1" d="M58,32 L58,56" />
-                    <path class="name-path" id="n-2" d="M58,38 C58,30 66,28 70,34 C74,40 72,56 72,56" />
-                    <!-- h: stroke 1 = tall vertical, stroke 2 = hump -->
-                    <path class="name-path" id="h-1" d="M82,12 L82,56" />
-                    <path class="name-path" id="h-2" d="M82,38 C82,30 90,28 94,34 C98,40 96,56 96,56" />
-                    <!-- m: stroke 1 = vertical, stroke 2 = first hump, stroke 3 = second hump -->
-                    <path class="name-path" id="m-1" d="M106,32 L106,56" />
-                    <path class="name-path" id="m-2" d="M106,38 C106,30 114,28 116,34 C118,40 118,42 118,42" />
-                    <path class="name-path" id="m-3" d="M118,42 C118,34 120,28 126,28 C132,28 134,36 134,42 L134,56" />
-                    <!-- i: stroke 1 = body, stroke 2 = dot -->
-                    <path class="name-path" id="i-1" d="M144,32 L144,56" />
-                    <path class="name-path" id="i-2" d="M144,22 L144.5,22.5" />
-                </g>
-            </svg>
+
+        <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">read my substack</a>
+
+        <div class="feed-section">
+            <div id="substack-feed" class="loading">...</div>
         </div>
-        <div class="card-bottom-strip"></div>
+
+        <!-- Spotify Player -->
+        <div class="spotify-wrapper">
+            <span class="player-title">now playing</span>
+            <div id="spotify-player-container" style="width: 100%;"></div>
+        </div>
     </div>
 
-    <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">read my essays</a>
-
-    <div class="feed-section">
-        <div id="substack-feed" class="loading">...</div>
+    <!-- Blog content (hidden by default, shown via ?post= param) -->
+    <div id="blog-content">
+        <a href="/" class="back-link">back</a>
+        <article id="post-body"></article>
     </div>
 
-    <!-- Spotify Player -->
-    <div class="spotify-wrapper">
-        <span class="player-title">now playing</span>
-        <div id="spotify-player-container" style="width: 100%;"></div>
-    </div>
-
+    <script src="marked.min.js"></script>
     <script>
+        // ── Blog routing (query param) ──
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const post = params.get('post');
+
+            if (post) {
+                document.getElementById('home-content').classList.add('hidden');
+                document.getElementById('blog-content').classList.add('visible');
+                document.body.classList.add('blog-view');
+                document.title = post.replace(/-/g, ' ') + ' — bnmbanhmi';
+
+                fetch('posts/' + post + '.md')
+                    .then(r => {
+                        if (!r.ok) throw new Error('not found');
+                        return r.text();
+                    })
+                    .then(md => {
+                        document.getElementById('post-body').innerHTML = marked.parse(md);
+                    })
+                    .catch(() => {
+                        document.getElementById('post-body').innerHTML = '<p>post not found.</p>';
+                    });
+            }
+        })();
+
         // ── Handwriting animation ──
         (function () {
             // Each stroke as a separate path, in drawing order
@@ -358,10 +501,10 @@
             const container = document.getElementById('spotify-player-container');
             const trackId = extractSpotifyId(url) || '456WNXWhDwYOSf5SpTuqxd';
             const embedUrl = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator`;
-            
+
             // 1. Fade out gracefully
             container.classList.remove('loaded');
-            
+
             // 2. Wait for fade out animation (400ms) before swapping content
             setTimeout(() => {
                 const iframe = document.createElement('iframe');
@@ -374,16 +517,16 @@
                 iframe.allowFullscreen = '';
                 iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
                 iframe.loading = 'lazy';
-                
+
                 // 3. Fade back in once the new iframe is loaded
                 iframe.onload = () => {
                     container.classList.add('loaded');
                 };
-                
+
                 // Swap the iframe
                 container.innerHTML = '';
                 container.appendChild(iframe);
-                
+
                 // Fallback in case onload is slow or fails
                 setTimeout(() => {
                     if (!container.classList.contains('loaded')) {
@@ -391,7 +534,7 @@
                     }
                 }, 2000);
 
-            }, 400); 
+            }, 400);
         }
 
         // Initialize
