@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>bnmbanhmi</title>
     <link rel="canonical" href="https://blog.minhbach.net" />
     <style>
@@ -17,27 +17,175 @@
             --muted-color: #BFAAA5;
         }
 
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 40px 20px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Fullpage Native Scroll-Snap Container (Apple Trackpad / 120Hz ProMotion Native Physics) */
+        #slider-container {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            position: relative;
+        }
+
+        #slider-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .section-page {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 90vh;
+            padding: 40px 24px;
+            padding-bottom: max(40px, env(safe-area-inset-bottom, 20px));
+            padding-top: max(40px, env(safe-area-inset-top, 20px));
+            position: relative;
+            overflow: hidden;
         }
 
+        .page-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            will-change: transform, opacity;
+        }
+
+        /* Static Page Hints (Top & Bottom) - Motionless, clean */
+        .page-hint {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: var(--muted-color);
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 45;
+            transition: color 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .page-hint:hover {
+            color: var(--accent-color);
+        }
+
+        .page-hint.hint-top {
+            top: max(32px, env(safe-area-inset-top, 16px));
+            flex-direction: column;
+        }
+
+        .hint-label {
+            font-size: 0.88rem;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            transition: color 0.25s ease;
+        }
+
+        .hint-arrow {
+            display: block;
+            opacity: 0.8;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .page-hint:hover .hint-arrow {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        /* ── Continuous Morphing Shared Elements ── */
+        .morph-element {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
+            white-space: nowrap;
+            will-change: top, transform, opacity, font-size, color;
+        }
+
+        .morph-element .morph-label {
+            display: inline-block;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+            padding-bottom: 2px;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .morph-element .morph-arrow {
+            display: block;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+
+        #morph-thoughts:hover .morph-label {
+            color: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
+        }
+
+        #morph-nowplaying:hover .morph-label {
+            color: var(--accent-color) !important;
+        }
+
+        /* Page 1: Hello Card (Original clean card) */
         .hello-card {
             width: 300px;
             background-color: var(--card-body);
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(122, 104, 99, 0.1);
-            margin-bottom: 40px;
+            box-shadow: 0 4px 18px rgba(122, 104, 99, 0.12);
             cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            will-change: transform, opacity;
+        }
+
+        .hello-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(122, 104, 99, 0.16);
         }
 
         .card-top {
@@ -83,6 +231,7 @@
         .handwriting-svg {
             width: 200px;
             height: auto;
+            display: block;
         }
 
         .name-path {
@@ -93,42 +242,35 @@
             stroke-linejoin: round;
         }
 
-        .main-link {
-            display: inline-block;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 1rem;
-            border-bottom: 1px solid var(--accent-color);
-            padding-bottom: 2px;
-            transition: all 0.3s ease;
-            margin-bottom: 50px;
-        }
-
-        .main-link:hover {
-            color: var(--accent-color);
-            border-bottom-width: 2px;
+        /* Page 2: Feed Section & Spacers */
+        .morph-thoughts-spacer {
+            width: 100%;
+            height: 32px;
+            margin-bottom: 28px;
         }
 
         .feed-section {
             width: 100%;
-            max-width: 400px;
+            max-width: 380px;
             text-align: left;
+            will-change: transform, opacity;
         }
 
         .post-item {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .post-item h3 {
             margin: 0 0 4px 0;
             font-weight: 400;
             font-size: 0.95rem;
+            line-height: 1.4;
         }
 
         .post-item h3 a {
             color: var(--text-color);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: color 0.2s ease;
         }
 
         .post-item h3 a:hover {
@@ -148,48 +290,64 @@
             text-align: center;
         }
 
+        /* Page 3: Spotify */
         .spotify-wrapper {
             width: 100%;
             max-width: 320px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
-            margin-bottom: 40px;
         }
 
-        .player-title {
-            font-size: 1rem;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            opacity: 0.9;
+        .morph-nowplaying-spacer {
+            width: 100%;
+            height: 26px;
+            margin-bottom: 22px;
         }
 
         #spotify-player-container {
             min-height: 352px;
             width: 100%;
-            transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.5s ease-out;
             opacity: 0;
-            transform: translateY(-40px);
+            will-change: transform, opacity;
         }
 
         #spotify-player-container.loaded {
             opacity: 1;
-            transform: translateY(0);
         }
 
+        @media (max-width: 600px) {
+            .page-hint.hint-top {
+                top: max(22px, env(safe-area-inset-top, 14px));
+            }
+            .hello-card {
+                width: 280px;
+            }
+            .handwriting-svg {
+                width: 185px;
+            }
+            .feed-section {
+                max-width: 320px;
+            }
+            .spotify-wrapper {
+                max-width: 300px;
+            }
+        }
+
+        /* Blog View Mode (?post=slug) */
         body.blog-view {
-            justify-content: flex-start;
+            overflow: auto !important;
+            height: auto !important;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: block;
         }
 
-        #home-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #home-content.hidden {
-            display: none;
+        body.blog-view #slider-container,
+        body.blog-view .morph-element,
+        body.blog-view .page-hint {
+            display: none !important;
         }
 
         #blog-content {
@@ -199,7 +357,7 @@
             margin: 0 auto;
         }
 
-        #blog-content.visible {
+        body.blog-view #blog-content {
             display: block;
         }
 
@@ -230,32 +388,16 @@
             margin-top: 2em;
         }
 
-        #post-body h1 {
-            font-size: 1.5rem;
-        }
-
-        #post-body h2 {
-            font-size: 1.25rem;
-        }
-
-        #post-body h3 {
-            font-size: 1.1rem;
-        }
-
-        #post-body p {
-            margin: 1.2em 0;
-        }
-
-        #post-body a {
-            color: var(--accent-color);
-        }
-
+        #post-body h1 { font-size: 1.5rem; }
+        #post-body h2 { font-size: 1.25rem; }
+        #post-body h3 { font-size: 1.1rem; }
+        #post-body p { margin: 1.2em 0; }
+        #post-body a { color: var(--accent-color); }
         #post-body img {
             max-width: 100%;
             border-radius: 8px;
             margin: 1.5em 0;
         }
-
         #post-body blockquote {
             border-left: 3px solid var(--accent-color);
             margin: 1.5em 0;
@@ -263,25 +405,20 @@
             background: var(--card-body);
             border-radius: 0 8px 8px 0;
         }
-
         #post-body code {
             background: var(--card-body);
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 0.85em;
         }
-
         #post-body pre code {
             display: block;
             padding: 1em;
             overflow-x: auto;
         }
-
-        #post-body ul,
-        #post-body ol {
+        #post-body ul, #post-body ol {
             padding-left: 1.5em;
         }
-
         #post-body li {
             margin: 0.5em 0;
         }
@@ -290,58 +427,127 @@
 
 <body>
 
-    <div id="home-content">
+    <!-- ── Continuous Morphing Shared Element 1: "read my thoughts" ── -->
+    <a href="https://bnmbanhmi.substack.com" target="_blank" id="morph-thoughts" class="morph-element" aria-label="read my thoughts">
+        <svg class="morph-arrow morph-arrow-up" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+        <span class="morph-label" id="morph-thoughts-label">read my thoughts</span>
+        <svg class="morph-arrow morph-arrow-down" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </a>
 
-        <div class="hello-card" id="helloCard">
-            <div class="card-top">
-                <span class="hello-text">Hello</span>
-                <span class="subtitle-text">my name is</span>
-            </div>
-            <div class="card-body">
-                <svg class="handwriting-svg" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
-                    <g transform="translate(31, 0)">
-                        <!-- b: stroke 1 = vertical, stroke 2 = belly -->
-                        <path class="name-path" id="b-1" d="M12,12 L12,58" />
-                        <path class="name-path" id="b-2"
-                            d="M12,35 C12,28 22,22 26,30 C30,38 28,48 22,52 C16,56 12,52 12,48" />
-                        <!-- a: stroke 1 = circle, stroke 2 = tail -->
-                        <path class="name-path" id="a-1"
-                            d="M48,32 C44,28 36,28 34,35 C32,42 34,52 40,54 C46,56 50,50 48,42 L48,32" />
-                        <path class="name-path" id="a-2" d="M48,32 L48,56" />
-                        <!-- n: stroke 1 = vertical, stroke 2 = hump -->
-                        <path class="name-path" id="n-1" d="M58,32 L58,56" />
-                        <path class="name-path" id="n-2" d="M58,38 C58,30 66,28 70,34 C74,40 72,56 72,56" />
-                        <!-- h: stroke 1 = tall vertical, stroke 2 = hump -->
-                        <path class="name-path" id="h-1" d="M82,12 L82,56" />
-                        <path class="name-path" id="h-2" d="M82,38 C82,30 90,28 94,34 C98,40 96,56 96,56" />
-                        <!-- m: stroke 1 = vertical, stroke 2 = first hump, stroke 3 = second hump -->
-                        <path class="name-path" id="m-1" d="M106,32 L106,56" />
-                        <path class="name-path" id="m-2" d="M106,38 C106,30 114,28 116,34 C118,40 118,42 118,42" />
-                        <path class="name-path" id="m-3"
-                            d="M118,42 C118,34 120,28 126,28 C132,28 134,36 134,42 L134,56" />
-                        <!-- i: stroke 1 = body, stroke 2 = dot -->
-                        <path class="name-path" id="i-1" d="M144,32 L144,56" />
-                        <path class="name-path" id="i-2" d="M144,22 L144.5,22.5" />
-                    </g>
-                </svg>
-            </div>
-            <div class="card-bottom-strip"></div>
-        </div>
-
-        <a href="https://bnmbanhmi.substack.com" target="_blank" class="main-link">read my thoughts</a>
-
-        <div class="feed-section">
-            <div id="substack-feed" class="loading">...</div>
-        </div>
-
-        <!-- Spotify Player -->
-        <div class="spotify-wrapper">
-            <span class="player-title">now playing</span>
-            <div id="spotify-player-container" style="width: 100%;"></div>
-        </div>
+    <!-- ── Continuous Morphing Shared Element 2: "now playing" ── -->
+    <div id="morph-nowplaying" class="morph-element" aria-label="now playing">
+        <span class="morph-label" id="morph-nowplaying-label">now playing</span>
+        <svg class="morph-arrow morph-arrow-down" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
     </div>
 
-    <!-- Blog content (hidden by default, shown via ?post= param) -->
+    <!-- ── Top Hint for Page 2: HELLO (Clean Static Hint) ── -->
+    <div class="page-hint hint-top" id="hint-p2-top" data-goto="0" aria-label="Go to HELLO">
+        <svg class="hint-arrow" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+        <span class="hint-label">HELLO</span>
+    </div>
+
+    <div id="slider-container">
+
+        <!-- Page 1: Hello Card (Original Untouched Card) -->
+        <section class="section-page" id="page-hello" data-page="0">
+            <div class="page-content" id="content-page-0">
+                <div class="hello-card" id="helloCard">
+                    <div class="card-top">
+                        <span class="hello-text">Hello</span>
+                        <span class="subtitle-text">my name is</span>
+                    </div>
+                    <div class="card-body">
+                        <svg class="handwriting-svg" id="handwriting-svg" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(6, 0)">
+          <path class="name-path" id="m-1" d="M14,32 L14,56" />
+          <path
+            class="name-path"
+            id="m-2"
+            d="M14,38 C14,30 22,28 25,34 C28,40 28,42 28,42"
+          />
+          <path
+            class="name-path"
+            id="m-3"
+            d="M28,42 C28,34 33,28 37,28 C41,28 42,36 42,42 L42,56"
+          />
+          <path class="name-path" id="i-1" d="M51,32 L51,56" />
+          <path class="name-path" id="i-2" d="M51,22 L51.5,22.5" />
+          <path class="name-path" id="n-1" d="M61,32 L61,56" />
+          <path
+            class="name-path"
+            id="n-2"
+            d="M61,38 C61,30 69,28 73,34 C77,40 75,56 75,56"
+          />
+          <path class="name-path" id="h1-1" d="M85,12 L85,56" />
+          <path
+            class="name-path"
+            id="h1-2"
+            d="M85,38 C85,30 93,28 97,34 C101,40 99,56 99,56"
+          />
+          <path class="name-path" id="b-1" d="M113,12 L113,56" />
+          <path
+            class="name-path"
+            id="b-2"
+            d="M113,35 C113,28 123,22 127,30 C131,38 129,48 123,52 C117,56 113,52 113,48"
+          />
+          <path
+            class="name-path"
+            id="a-1"
+            d="M147,32 C143,28 135,28 133,35 C131,42 133,52 139,54 C145,56 149,50 147,42 L147,32"
+          />
+          <path class="name-path" id="a-2" d="M147,32 L147,56" />
+          <path
+            class="name-path"
+            id="c-1"
+            d="M168,34 C165,28 156,28 154,36 C152,44 154,52 160,55 C166,58 170,50 170,47"
+          />
+          <path class="name-path" id="h2-1" d="M180,12 L180,56" />
+          <path
+            class="name-path"
+            id="h2-2"
+            d="M180,38 C180,30 188,28 192,34 C196,40 194,56 194,56"
+          />
+        </g>
+                        </svg>
+                    </div>
+                    <div class="card-bottom-strip"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 2: Read my thoughts -->
+        <section class="section-page" id="page-thoughts" data-page="1">
+            <div class="page-content" id="content-page-1">
+                <!-- Anchor spacer for the morphing title -->
+                <div class="morph-thoughts-spacer" id="thoughts-anchor"></div>
+                <div class="feed-section" id="thoughts-feed-section">
+                    <div id="substack-feed" class="loading">...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 3: Now playing -->
+        <section class="section-page" id="page-nowplaying" data-page="2">
+            <div class="page-content" id="content-page-2">
+                <div class="spotify-wrapper">
+                    <!-- Anchor spacer for the morphing title -->
+                    <div class="morph-nowplaying-spacer" id="nowplaying-anchor"></div>
+                    <div id="spotify-player-container"></div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Blog content (shown via ?post= param) -->
     <div id="blog-content">
         <a href="/" class="back-link">back</a>
         <article id="post-body"></article>
@@ -355,8 +561,6 @@
             const post = params.get('post');
 
             if (post) {
-                document.getElementById('home-content').classList.add('hidden');
-                document.getElementById('blog-content').classList.add('visible');
                 document.body.classList.add('blog-view');
                 document.title = post.replace(/-/g, ' ') + ' — bnmbanhmi';
 
@@ -374,86 +578,337 @@
             }
         })();
 
-        // ── Handwriting animation ──
-        (function () {
-            // Each stroke as a separate path, in drawing order
-            const strokes = [
-                'b-1', 'b-2',       // b: vertical, then belly
-                'a-1', 'a-2',       // a: circle, then tail
-                'n-1', 'n-2',       // n: vertical, then hump
-                'h-1', 'h-2',       // h: vertical, then hump
-                'm-1', 'm-2', 'm-3', // m: vertical, first hump, second hump
-                'i-1', 'i-2'        // i: body, then dot
-            ];
+        // ── Handwriting animation (extracted verbatim from HandwritingCard.tsx) ──
+        const STROKES = [
+  "m-1", "m-2", "m-3", // m
+  "i-1", "i-2",        // i
+  "n-1", "n-2",        // n
+  "h1-1", "h1-2",      // h
+  "b-1", "b-2",        // b
+  "a-1", "a-2",        // a
+  "c-1",               // c
+  "h2-1", "h2-2",      // h
+];
 
-            // Duration each stroke takes to draw (ms)
-            const drawDuration = 1000;
-            // Small pause between strokes (ms)
-            const strokeGap = 40;
+        const msPerUnit = 11;
+        const strokeGap = 20;
+        let handwritingTimers = [];
 
-            function initPaths() {
-                strokes.forEach(id => {
-                    const path = document.getElementById(id);
+        function initPaths() {
+            const svg = document.getElementById('handwriting-svg');
+            if (!svg) return;
+            STROKES.forEach(id => {
+                const path = svg.querySelector('#' + id);
+                if (path) {
                     const len = path.getTotalLength();
                     path.style.strokeDasharray = len;
                     path.style.strokeDashoffset = len;
                     path.style.transition = 'none';
-                });
-            }
+                }
+            });
+        }
 
-            // Track pending timers so we can cancel them on re-trigger
-            let pendingTimers = [];
+        function animateWrite() {
+            const svg = document.getElementById('handwriting-svg');
+            if (!svg) return;
 
-            function animateWrite() {
-                // Cancel any in-progress animation
-                pendingTimers.forEach(t => clearTimeout(t));
-                pendingTimers = [];
+            // Clear any pending timers
+            handwritingTimers.forEach(t => clearTimeout(t));
+            handwritingTimers = [];
 
-                // Reset all strokes instantly
-                strokes.forEach(id => {
-                    const path = document.getElementById(id);
+            // Reset stroke styles
+            STROKES.forEach(id => {
+                const path = svg.querySelector('#' + id);
+                if (path) {
                     const len = path.getTotalLength();
-                    path.style.transition = 'none';
+                    path.style.strokeDasharray = len;
                     path.style.strokeDashoffset = len;
-                });
-
-                // Force reflow
-                void document.querySelector('.handwriting-svg').getBoundingClientRect();
-
-                // Sequentially animate each stroke
-                let cumDelay = 0;
-                strokes.forEach((id, i) => {
-                    const path = document.getElementById(id);
-                    const len = path.getTotalLength();
-                    // Scale duration proportionally to path length so short strokes don't drag
-                    const dur = Math.max(150, drawDuration * (len / 80));
-
-                    const timer = setTimeout(() => {
-                        path.style.transition = `stroke-dashoffset ${dur}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-                        path.style.strokeDashoffset = '0';
-                    }, cumDelay);
-
-                    pendingTimers.push(timer);
-                    cumDelay += dur + strokeGap;
-                });
-            }
-
-            // Initial setup & first animation
-            window.addEventListener('DOMContentLoaded', () => {
-                initPaths();
-                // Small delay so the page settles
-                setTimeout(animateWrite, 300);
+                    path.style.transition = 'none';
+                }
             });
 
-            // Re-play animation on hover (desktop) and touch/click (mobile)
-            const card = document.getElementById('helloCard');
+            // Force reflow
+            void svg.getBoundingClientRect();
+
+            // Constant linear speed: constant milliseconds per pixel across all strokes
+            let cumDelay = 0;
+            STROKES.forEach(id => {
+                const path = svg.querySelector('#' + id);
+                if (!path) return;
+
+                const len = path.getTotalLength();
+                // Constant velocity across all curves and lines
+                const dur = id === 'i-2' ? 80 : Math.max(80, Math.round(len * msPerUnit));
+
+                const timer = setTimeout(() => {
+                    if (path) {
+                        path.style.transition = `stroke-dashoffset ${dur}ms linear`;
+                        path.style.strokeDashoffset = '0';
+                    }
+                }, cumDelay);
+
+                handwritingTimers.push(timer);
+
+                // Subtle natural pen-lift pause between "minh" and "bach"
+                const extraGap = id === 'h1-2' ? 120 : 0;
+                cumDelay += dur + strokeGap + extraGap;
+            });
+        }
+
+        // Card interaction (click / hover)
+        const card = document.getElementById('helloCard');
+        if (card) {
             card.addEventListener('mouseenter', animateWrite);
             card.addEventListener('click', animateWrite);
-            card.addEventListener('touchstart', (e) => {
+        }
+
+        // ── Smooth Native Scroll & True Morphing Shared Elements Engine ──
+        const sliderContainer = document.getElementById('slider-container');
+        const helloCard = document.getElementById('helloCard');
+
+        const morphThoughts = document.getElementById('morph-thoughts');
+        const morphThoughtsLabel = document.getElementById('morph-thoughts-label');
+        const morphThoughtsArrowUp = morphThoughts.querySelector('.morph-arrow-up');
+        const morphThoughtsArrowDown = morphThoughts.querySelector('.morph-arrow-down');
+
+        const morphNowplaying = document.getElementById('morph-nowplaying');
+        const morphNowplayingLabel = document.getElementById('morph-nowplaying-label');
+        const morphNowplayingArrowDown = morphNowplaying.querySelector('.morph-arrow-down');
+
+        const hintP2Top = document.getElementById('hint-p2-top');
+        const thoughtsFeedSection = document.getElementById('thoughts-feed-section');
+        const spotifyContainer = document.getElementById('spotify-player-container');
+
+        let activePageIndex = 0;
+        let hasAnimatedP0 = false;
+
+        function scrollToPage(index) {
+            const vh = sliderContainer.clientHeight;
+            sliderContainer.scrollTo({
+                top: index * vh,
+                behavior: 'smooth'
+            });
+        }
+
+        // Color interpolation helper
+        function lerpColor(r1, g1, b1, r2, g2, b2, t) {
+            const r = Math.round(r1 + (r2 - r1) * t);
+            const g = Math.round(g1 + (g2 - g1) * t);
+            const b = Math.round(b1 + (b2 - b1) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // Relative offset of anchor inside its parent section
+        function getAnchorRelativeY(anchorId, sectionId) {
+            const anchor = document.getElementById(anchorId);
+            const section = document.getElementById(sectionId);
+            if (!anchor || !section) return 0;
+            const aRect = anchor.getBoundingClientRect();
+            const sRect = section.getBoundingClientRect();
+            return aRect.top - sRect.top;
+        }
+
+        function updateMorphPositions() {
+            const vh = sliderContainer.clientHeight || window.innerHeight;
+            const scrollTop = sliderContainer.scrollTop;
+            const progress = scrollTop / vh; // 0.0 to 2.0
+
+            // Safe bottom margin that keeps text & arrow well above screen edge & home bar
+            const safeBottomPadding = Math.max(76, (window.innerHeight < 700 ? 76 : 86));
+            const y_bottom = vh - safeBottomPadding;
+
+            // Dynamically computed anchor targets based on actual DOM layout
+            const y_page2_center = getAnchorRelativeY('thoughts-anchor', 'page-thoughts') || (vh * 0.36);
+            const y_page3_center = getAnchorRelativeY('nowplaying-anchor', 'page-nowplaying') || (vh * 0.22);
+            const y_top = (vh < 650 ? 22 : 32);
+
+            // 1. Morphing Element 1: "read my thoughts"
+            if (progress <= 1.0) {
+                const t = Math.max(0, Math.min(1, progress));
+                // Physical position lerps smoothly from comfortable bottom to Page 2 anchor
+                const currentY = (1 - t) * y_bottom + t * y_page2_center;
+                morphThoughts.style.top = `${currentY}px`;
+
+                // Font size scales from 0.88rem to 1.05rem
+                const fontSize = 0.88 + t * (1.05 - 0.88);
+                morphThoughtsLabel.style.fontSize = `${fontSize}rem`;
+
+                // Color morphs from muted (#BFAAA5 = 191,170,165) to text-color (#7A6863 = 122,104,99)
+                morphThoughts.style.color = lerpColor(191, 170, 165, 122, 104, 99, t);
+
+                // Underline color MATCHES the text color (#7A6863 = 122, 104, 99)
+                if (t > 0.4) {
+                    const borderOpacity = (t - 0.4) / 0.6;
+                    morphThoughtsLabel.style.borderBottom = `1px solid rgba(122, 104, 99, ${borderOpacity})`;
+                } else {
+                    morphThoughtsLabel.style.borderBottom = '1px solid transparent';
+                }
+
+                // Arrow down fades out early in the ascent
+                morphThoughtsArrowDown.style.opacity = Math.max(0, 1 - t * 3.5);
+                morphThoughtsArrowUp.style.opacity = '0';
+
+                // Hello card fades and slightly lifts
+                helloCard.style.transform = `translateY(${-t * 35}px) scale(${1 - t * 0.04})`;
+                helloCard.style.opacity = Math.max(0, 1 - t * 1.5);
+
+                // Feed section enters smoothly below the morphing title
+                if (thoughtsFeedSection) {
+                    const feedOffset = (1 - t) * 55;
+                    thoughtsFeedSection.style.transform = `translateY(${feedOffset}px)`;
+                    thoughtsFeedSection.style.opacity = Math.max(0, Math.min(1, (t - 0.3) * 1.6));
+                }
+
+                // Top hint (HELLO) fades in cleanly as we reach Page 2
+                if (hintP2Top) {
+                    hintP2Top.style.opacity = Math.max(0, Math.min(1, (t - 0.45) * 2));
+                }
+            } else {
+                const t = Math.max(0, Math.min(1, progress - 1.0));
+                // Physical position lerps smoothly from Page 2 center up to top hint position
+                const currentY = (1 - t) * y_page2_center + t * y_top;
+                morphThoughts.style.top = `${currentY}px`;
+
+                // Font size scales from 1.05rem down to 0.88rem
+                const fontSize = 1.05 - t * (1.05 - 0.88);
+                morphThoughtsLabel.style.fontSize = `${fontSize}rem`;
+
+                // Color morphs from text-color (#7A6863 = 122,104,99) back to muted (#BFAAA5 = 191,170,165)
+                morphThoughts.style.color = lerpColor(122, 104, 99, 191, 170, 165, t);
+
+                // Underline fades out
+                const borderOpacity = Math.max(0, 1 - t * 2.5);
+                morphThoughtsLabel.style.borderBottom = `1px solid rgba(122, 104, 99, ${borderOpacity})`;
+
+                // Arrow up fades in as we approach top of Page 3
+                morphThoughtsArrowDown.style.opacity = '0';
+                morphThoughtsArrowUp.style.opacity = Math.max(0, Math.min(1, (t - 0.4) * 2));
+
+                // Feed section fades out
+                if (thoughtsFeedSection) {
+                    thoughtsFeedSection.style.opacity = Math.max(0, 1 - t * 1.6);
+                }
+
+                // Top hint (HELLO) fades out
+                if (hintP2Top) {
+                    hintP2Top.style.opacity = Math.max(0, 1 - t * 2.5);
+                }
+            }
+
+            // 2. Morphing Element 2: "now playing"
+            if (progress < 0.6) {
+                // Hidden on Page 1
+                morphNowplaying.style.opacity = '0';
+                morphNowplaying.style.pointerEvents = 'none';
+            } else if (progress <= 1.0) {
+                // Fades in at bottom of Page 2
+                const t = (progress - 0.6) / 0.4;
+                morphNowplaying.style.top = `${y_bottom}px`;
+                morphNowplaying.style.opacity = `${t}`;
+                morphNowplaying.style.pointerEvents = 'auto';
+                morphNowplaying.style.color = 'var(--muted-color)';
+                morphNowplayingLabel.style.fontSize = '0.88rem';
+                morphNowplayingArrowDown.style.opacity = `${t}`;
+            } else {
+                const t = Math.max(0, Math.min(1, progress - 1.0));
+                // Physical position lerps smoothly from bottom up to dynamically measured Spotify title position
+                const currentY = (1 - t) * y_bottom + t * y_page3_center;
+                morphNowplaying.style.top = `${currentY}px`;
+                morphNowplaying.style.opacity = '1';
+                morphNowplaying.style.pointerEvents = (t > 0.8) ? 'none' : 'auto';
+
+                // Font size scales from 0.88rem to 1.0rem
+                const fontSize = 0.88 + t * (1.0 - 0.88);
+                morphNowplayingLabel.style.fontSize = `${fontSize}rem`;
+
+                // Color morphs from muted (#BFAAA5 = 191,170,165) to text-color (#7A6863 = 122,104,99)
+                // EXACTLY MATCHING "read my thoughts" text color!
+                morphNowplaying.style.color = lerpColor(191, 170, 165, 122, 104, 99, t);
+
+                // Arrow down fades out
+                morphNowplayingArrowDown.style.opacity = Math.max(0, 1 - t * 3.5);
+
+                // Spotify container settles into place
+                if (spotifyContainer) {
+                    const spotOffset = (1 - t) * 55;
+                    spotifyContainer.style.transform = `translateY(${spotOffset}px)`;
+                    spotifyContainer.style.opacity = Math.max(0, Math.min(1, (t - 0.25) * 1.5));
+                }
+            }
+
+            // 3. Update active page index
+            const newIndex = Math.round(progress);
+            if (newIndex !== activePageIndex) {
+                activePageIndex = newIndex;
+
+                // Auto-replay handwriting animation when landing back on Page 0
+                if (activePageIndex === 0 && hasAnimatedP0) {
+                    setTimeout(animateWrite, 150);
+                }
+            }
+        }
+
+        // RequestAnimationFrame scroll listener for 120Hz continuous tracking
+        let isTicking = false;
+        sliderContainer.addEventListener('scroll', () => {
+            if (!isTicking) {
+                requestAnimationFrame(() => {
+                    updateMorphPositions();
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        }, { passive: true });
+
+        // Click on hint-p2-top
+        hintP2Top.addEventListener('click', () => {
+            scrollToPage(0);
+        });
+
+        // Click on morph-thoughts
+        morphThoughts.addEventListener('click', (e) => {
+            const vh = sliderContainer.clientHeight;
+            const progress = sliderContainer.scrollTop / vh;
+            if (progress < 0.4) {
+                // On Page 1 -> scroll to Page 2
                 e.preventDefault();
-                animateWrite();
-            }, { passive: false });
-        })();
+                scrollToPage(1);
+            } else if (progress > 1.6) {
+                // On Page 3 -> scroll back to Page 2
+                e.preventDefault();
+                scrollToPage(1);
+            }
+            // Otherwise on Page 2: opens Substack link normally!
+        });
+
+        // Click on morph-nowplaying
+        morphNowplaying.addEventListener('click', (e) => {
+            const vh = sliderContainer.clientHeight;
+            const progress = sliderContainer.scrollTop / vh;
+            if (progress < 1.4) {
+                // On Page 2 -> scroll to Page 3
+                e.preventDefault();
+                scrollToPage(2);
+            }
+        });
+
+        // Keyboard navigation
+        window.addEventListener('keydown', (e) => {
+            if (document.body.classList.contains('blog-view')) return;
+            if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+                e.preventDefault();
+                if (activePageIndex < 2) scrollToPage(activePageIndex + 1);
+            } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+                e.preventDefault();
+                if (activePageIndex > 0) scrollToPage(activePageIndex - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                scrollToPage(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                scrollToPage(2);
+            }
+        });
 
         // ── Substack feed ──
         const rssUrl = 'https://bnmbanhmi.substack.com/feed';
@@ -463,6 +918,7 @@
             .then(response => response.json())
             .then(data => {
                 const container = document.getElementById('substack-feed');
+                if (!container) return;
                 container.innerHTML = '';
 
                 if (!data.items || data.items.length === 0) {
@@ -485,7 +941,8 @@
                 });
             })
             .catch(error => {
-                document.getElementById('substack-feed').innerHTML = '';
+                const container = document.getElementById('substack-feed');
+                if (container) container.innerHTML = '';
             });
 
         // ── Spotify Player ──
@@ -498,13 +955,12 @@
 
         function loadSpotifyTrack(url) {
             const container = document.getElementById('spotify-player-container');
+            if (!container) return;
             const trackId = extractSpotifyId(url) || '456WNXWhDwYOSf5SpTuqxd';
             const embedUrl = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator`;
 
-            // 1. Fade out gracefully
             container.classList.remove('loaded');
 
-            // 2. Wait for fade out animation (400ms) before swapping content
             setTimeout(() => {
                 const iframe = document.createElement('iframe');
                 iframe.setAttribute('data-testid', 'embed-iframe');
@@ -517,28 +973,36 @@
                 iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
                 iframe.loading = 'lazy';
 
-                // 3. Fade back in once the new iframe is loaded
                 iframe.onload = () => {
                     container.classList.add('loaded');
                 };
 
-                // Swap the iframe
                 container.innerHTML = '';
                 container.appendChild(iframe);
 
-                // Fallback in case onload is slow or fails
                 setTimeout(() => {
                     if (!container.classList.contains('loaded')) {
                         container.classList.add('loaded');
                     }
                 }, 2000);
-
             }, 400);
         }
 
-        // Initialize
-        // Note: You can call loadSpotifyTrack(newUrl) anytime to smoothly transition to a new track
-        loadSpotifyTrack(spotifyLink);
+        // ── Window Resize & Init ──
+        window.addEventListener('resize', () => {
+            updateMorphPositions();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initPaths();
+            setTimeout(() => {
+                animateWrite();
+                hasAnimatedP0 = true;
+            }, 300);
+
+            loadSpotifyTrack(spotifyLink);
+            updateMorphPositions();
+        });
     </script>
 </body>
 
